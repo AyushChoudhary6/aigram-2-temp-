@@ -32,6 +32,7 @@ export default function AIToolsScreen({ user }: AIToolsScreenProps) {
     messages,
     input,
     loading,
+    error,
     handleSend,
     clearChat,
     setInput,
@@ -68,6 +69,14 @@ export default function AIToolsScreen({ user }: AIToolsScreenProps) {
           <Ionicons name="trash-outline" size={20} color="#5C6782" />
         </TouchableOpacity>
       </View>
+      
+      {/* Error Display */}
+      {error && (
+        <View style={styles.errorDisplay}>
+          <Ionicons name="alert-circle-outline" size={20} color="#EF4444" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -196,6 +205,22 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  errorDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(239, 68, 68, 0.2)',
+  },
+
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
   },
 
   messagesContainer: {
