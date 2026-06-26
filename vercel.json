@@ -1,0 +1,10 @@
+{
+  "framework": "expo",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/proxy/api/:path*",
+      "destination": "http://15.206.35.25:3000/api/:path*"
+    }
+  ]
+}

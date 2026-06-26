@@ -67,6 +67,7 @@ practice_videos/
 !app.json
 !eas.json
 !policy.json
+!vercel.json
 BACK/target/
 *.jar
 upload_practice_videos_to_s3.js
