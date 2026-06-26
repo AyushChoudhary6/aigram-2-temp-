@@ -1,7 +1,8 @@
 const chatConfig = {
-  MODEL: "llama-3.3-70b-versatile",
+  MODEL: "gemini-2.0-flash",
   
   GROQ_API_KEY: process.env.EXPO_PUBLIC_GROQ_API_KEY || "",
+  GEMINI_API_KEY: process.env.EXPO_PUBLIC_GEMINI_API_KEY || "",
   
   GROQ_ENDPOINT: "https://api.groq.com/openai/v1/chat/completions",
   
