@@ -1,11 +1,16 @@
-const dotenv = require('dotenv');
 const fs = require('fs');
-
-dotenv.config();
 
 const appJson = require('./app.json');
 
 module.exports = () => {
+  // Load environment variables if possible
+  try {
+    const dotenv = require('dotenv');
+    dotenv.config();
+  } catch (e) {
+    // Ignore if dotenv is not available
+  }
+
   const config = {
     expo: {
       ...appJson.expo,
