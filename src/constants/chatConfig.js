@@ -1,5 +1,5 @@
 const chatConfig = {
-  MODEL: "llama3-8b-8192",
+  MODEL: "llama-3.3-70b-versatile",
   
   GROQ_API_KEY: process.env.EXPO_PUBLIC_GROQ_API_KEY || "",
   
