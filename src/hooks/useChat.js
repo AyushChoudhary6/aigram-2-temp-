@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useCallback, useRef } from 'react';
 import chatConfig from '../constants/chatConfig';
-import { sendGeminiMessage } from '../services/geminiService';
+import { sendHuggingFaceMessage } from '../services/huggingfaceService';
 import { sanitizeInput, truncateText } from '../utils/chatHelpers';
 import { saveHistory, loadHistory as loadHistoryFromStorage, clearHistory as clearStorage } from '../services/chatStorage';
 
@@ -117,7 +117,7 @@ export default function useChat() {
 
     try {
       const filteredHistory = historyToSent.filter(m => m.role !== 'system');
-      const responseText = await sendGeminiMessage(filteredHistory);
+      const responseText = await sendHuggingFaceMessage(filteredHistory);
       
       dispatch({ type: 'UPDATE_LAST_MESSAGE', payload: { status: 'sent' } });
       dispatch({

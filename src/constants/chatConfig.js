@@ -1,8 +1,9 @@
 const chatConfig = {
-  MODEL: "gemini-2.0-flash",
+  MODEL: "mistralai/Mistral-7B-Instruct-v0.3",
   
-  GROQ_API_KEY: process.env.EXPO_PUBLIC_GROQ_API_KEY || "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",
-  GEMINI_API_KEY: process.env.EXPO_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "AQ.Ab8RN6LVvx3isZjnPBOEcsmGYIphsQW3vilik7-3wfuf9pVX7Q",
+  GROQ_API_KEY: process.env.EXPO_PUBLIC_GROQ_API_KEY || "",
+  GEMINI_API_KEY: process.env.EXPO_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "",
+  HF_API_KEY: process.env.EXPO_PUBLIC_HF_API_KEY || process.env.HF_TOKEN || "",
   
   GROQ_ENDPOINT: "https://api.groq.com/openai/v1/chat/completions",
   
