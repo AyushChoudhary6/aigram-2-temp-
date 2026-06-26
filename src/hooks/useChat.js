@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useCallback, useRef } from 'react';
 import chatConfig from '../constants/chatConfig';
-import { sendMessage, checkModelStatus } from '../services/huggingface';
+import { sendGroqMessage } from '../services/groqService';
 import { sanitizeInput, truncateText } from '../utils/chatHelpers';
 import { saveHistory, loadHistory as loadHistoryFromStorage, clearHistory as clearStorage } from '../services/chatStorage';
 
@@ -69,23 +69,7 @@ export default function useChat() {
   }, []);
 
   const checkModelOnMount = useCallback(async () => {
-    try {
-      const { loaded } = await checkModelStatus(chatConfig.MODEL);
-      if (!loaded) {
-        dispatch({
-          type: 'ADD_MESSAGE',
-          payload: {
-            id: Date.now() + Math.random().toString(),
-            role: 'system',
-            content: "The AI model is currently loading. Your first message may take 20-30 seconds to get a response.",
-            timestamp: Date.now(),
-            status: 'sent'
-          }
-        });
-      }
-    } catch (e) {
-      // Ignore check failures
-    }
+    // Groq doesn't need a model check, so we can skip this
   }, []);
 
   useEffect(() => {
@@ -128,12 +112,12 @@ export default function useChat() {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
 
-    // The current history for calling the HF model
+    // The current history for calling Groq
     const historyToSent = isRetry ? messagesRef.current : [...messagesRef.current, userMsg];
 
     try {
       const filteredHistory = historyToSent.filter(m => m.role !== 'system');
-      const responseText = await sendMessage(filteredHistory);
+      const responseText = await sendGroqMessage(filteredHistory);
       
       dispatch({ type: 'UPDATE_LAST_MESSAGE', payload: { status: 'sent' } });
       dispatch({
@@ -153,8 +137,7 @@ export default function useChat() {
       saveHistory([...historyToSent, { role: 'assistant', content: responseText, timestamp: Date.now(), status: 'sent' }]);
     } catch (error) {
       let friendlyError = "Something went wrong. Please try again.";
-      if (error.message === "MODEL_LOADING") friendlyError = "The AI model is warming up (can take 20-30 seconds). Please try again.";
-      else if (error.message === "RATE_LIMIT") friendlyError = "Too many requests. Please wait a moment and try again.";
+      if (error.message === "RATE_LIMIT") friendlyError = "Too many requests. Please wait a moment and try again.";
       else if (error.message === "INVALID_TOKEN") friendlyError = "API token is invalid. Check your configuration.";
       else if (error.message === "TIMEOUT") friendlyError = "Request timed out. Check your internet connection.";
 
