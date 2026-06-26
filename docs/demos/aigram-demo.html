@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0D1117">
+    <title>AI Gram - Authentication Demo</title>
+    <style>
+        :root {
+            --background: hsl(220, 20%, 6%);
+            --foreground: hsl(160, 20%, 95%);
+            --card: hsl(220, 18%, 10%);
+            --primary: hsl(160, 84%, 39%);
+            --primary-foreground: hsl(220, 20%, 6%);
+            --muted: hsl(220, 18%, 14%);
+            --muted-foreground: hsl(160, 10%, 60%);
+            --border: hsl(220, 18%, 18%);
+            --gradient-primary: linear-gradient(135deg, hsl(160, 84%, 39%), hsl(175, 84%, 35%));
+            
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+            --safe-area-inset-left: env(safe-area-inset-left);
+            --safe-area-inset-right: env(safe-area-inset-right);
+            
+            --touch-target-size: 48px;
+            --touch-target-size-ios: 44px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            touch-action: manipulation;
+        }
+        
+        @supports (-webkit-appearance: none) {
+            :root { --touch-target-size: var(--touch-target-size-ios); }
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.4; }
+            50% { transform: translateY(-12px) rotate(180deg); opacity: 0.7; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0, -8px, 0); }
+            70% { transform: translate3d(0, -4px, 0); }
+            90% { transform: translate3d(0, -2px, 0); }
+        }
+        
+        /* Floating Elements */
+        .floating-elements {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.4;
+        }
+        
+        .floating-element {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+            font-size: 16px;
+        }
+        
+        .floating-element:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+        .floating-element:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 2s; }
+        .floating-element:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 3s; }
+        .floating-element:nth-child(5) { top: 50%; left: 5%; animation-delay: 4s; }
+        .floating-element:nth-child(6) { top: 60%; right: 5%; animation-delay: 5s; }
+        
+        /* Auth Screen */
+        .auth-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: var(--background);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-top: var(--safe-area-inset-top);
+        }
+        
+        .logo-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            background: hsla(160, 84%, 39%, 0.2);
+            border: 2px solid hsla(160, 84%, 39%, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            animation: bounce 2s infinite;
+        }
+        
+        .logo-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s ease-in-out infinite;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo-subtitle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 6px;
+        }
+        
+        .logo-subtitle-text {
+            font-size: 11px;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        
+        /* Glass Card */
+        .glass-card {
+            position: relative;
+            margin: 0 1rem;
+        }
+        
+        .card-glow {
+            position: absolute;
+            inset: -6px;
+            background: var(--gradient-primary);
+            border-radius: 32px;
+            opacity: 0.3;
+            filter: blur(20px);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        .card-content {
+            position: relative;
+            background: hsla(220, 18%, 10%, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 2px solid hsla(160, 84%, 39%, 0.3);
+            border-radius: 28px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px hsla(220, 20%, 3%, 0.5);
+        }
+        
+        .step-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: hsla(160, 84%, 39%, 0.25);
+            border: 2px solid hsla(160, 84%, 39%, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 36px;
+            animation: bounce 2s infinite;
+        }
+        
+        .step-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--foreground);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.3px;
+        }
+        
+        .step-subtitle {
+            font-size: 0.95rem;
+            color: var(--muted-foreground);
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        
+        /* Input Styles */
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .country-code {
+            height: 60px;
+            padding: 0 18px;
+            border-radius: 16px;
+            background: hsla(220, 18%, 10%, 0.7);
+            border: 2px solid hsla(160, 84%, 39%, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--foreground);
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .phone-input {
+            flex: 1;
+            height: 60px;
+            padding: 0 20px;
+            border-radius: 16px;
+            background: hsla(220, 18%, 10%, 0.7);
+            border: 2px solid hsla(160, 84%, 39%, 0.3);
+            color: var(--foreground);
+            font-size: 1.2rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .phone-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px hsla(160, 84%, 39%, 0.2);
+            background: hsla(220, 18%, 10%, 0.9);
+            transform: scale(1.02);
+        }
+        
+        .phone-input::placeholder {
+            color: hsla(160, 10%, 60%, 0.7);
+            font-weight: 400;
+        }
+        
+        /* Button Styles */
+        .btn {
+            width: 100%;
+            height: 60px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:active {
+            transform: scale(0.97);
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--primary-foreground);
+            box-shadow: 0 6px 20px hsla(160, 84%, 39%, 0.4);
+            border: 2px solid transparent;
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            box-shadow: 0 8px 25px hsla(160, 84%, 39%, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: hsla(220, 18%, 10%, 0.6);
+            color: var(--primary);
+            border: 2px solid hsla(160, 84%, 39%, 0.5);
+            backdrop-filter: blur(15px);
+        }
+        
+        .btn-secondary:hover, .btn-secondary:focus {
+            background: hsla(160, 84%, 39%, 0.15);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+        
+        /* Divider */
+        .divider {
+            margin: 2rem 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+        
+        .divider span {
+            background: hsla(220, 18%, 10%, 0.9);
+            backdrop-filter: blur(15px);
+            padding: 0 1.5rem;
+            color: var(--muted-foreground);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            border: 2px solid hsla(160, 84%, 39%, 0.3);
+            border-radius: 25px;
+        }
+        
+        /* Video Stream Page */
+        .video-stream {
+            position: fixed;
+            inset: 0;
+            background: var(--background);
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .header {
+            background: hsla(220, 18%, 10%, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 1.2rem;
+            padding-top: calc(1.2rem + var(--safe-area-inset-top));
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 40;
+            box-shadow: 0 4px 20px hsla(220, 20%, 3%, 0.3);
+        }
+        
+        .header h1 {
+            margin: 0;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 0.7rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-height: var(--touch-target-size-ios);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logout-btn:hover, .logout-btn:focus {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px hsla(160, 84%, 39%, 0.3);
+        }
+        
+        .logout-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Stories Bar */
+        .stories-bar {
+            padding: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .stories-bar::-webkit-scrollbar { display: none; }
+        
+        .stories-container {
+            display: flex;
+            gap: 1.2rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.7rem;
+            flex-shrink: 0;
+            cursor: pointer;
+            min-width: 65px;
+            transition: transform 0.2s ease;
+        }
+        
+        .story-item:active {
+            transform: scale(0.95);
+        }
+        
+        .story-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: var(--primary-foreground);
+            position: relative;
+            border: 3px solid hsla(160, 84%, 39%, 0.3);
+            box-shadow: 0 4px 16px hsla(160, 84%, 39%, 0.2);
+        }
+        
+        .story-avatar.add-story::after {
+            content: '+';
+            position: absolute;
+            bottom: -3px;
+            right: -3px;
+            width: 22px;
+            height: 22px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: 3px solid var(--background);
+            font-weight: bold;
+        }
+        
+        .story-name {
+            font-size: 0.8rem;
+            color: var(--muted-foreground);
+            text-align: center;
+            max-width: 65px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        
+        /* Video Feed */
+        .video-feed {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .video-item {
+            background: hsla(220, 18%, 10%, 0.7);
+            backdrop-filter: blur(20px);
+            border: 2px solid hsla(160, 84%, 39%, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 32px hsla(220, 20%, 3%, 0.3);
+        }
+        
+        .video-item:hover {
+            border-color: hsla(160, 84%, 39%, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px hsla(160, 84%, 39%, 0.1);
+        }
+        
+        .video-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .video-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-foreground);
+            font-weight: bold;
+            flex-shrink: 0;
+            border: 2px solid hsla(160, 84%, 39%, 0.3);
+        }
+        
+        .video-info h3 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+        
+        .video-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--muted-foreground);
+            font-weight: 500;
+        }
+        
+        .video-placeholder {
+            width: 100%;
+            height: 220px;
+            background: var(--gradient-primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px hsla(160, 84%, 39%, 0.2);
+        }
+        
+        .video-placeholder:active {
+            transform: scale(0.98);
+        }
+        
+        .video-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.7rem;
+            border-radius: 12px;
+            min-height: var(--touch-target-size-ios);
+            min-width: var(--touch-target-size-ios);
+            justify-content: center;
+        }
+        
+        .action-btn:hover, .action-btn:focus {
+            color: var(--primary);
+            background: hsla(160, 84%, 39%, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        
+        /* Status Message */
+        .status-message {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: hsla(160, 84%, 39%, 0.9);
+            color: var(--primary-foreground);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 100;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .glass-card { margin: 0 0.75rem; }
+            .card-content { padding: 2rem; }
+            .logo-title { font-size: 2rem; }
+        }
+        
+        @media (min-width: 768px) {
+            .auth-container { max-width: 480px; }
+            .logo-title { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Elements Background -->
+    <div class="floating-elements">
+        <div class="floating-element">✨</div>
+        <div class="floating-element">⚡</div>
+        <div class="floating-element">🌟</div>
+        <div class="floating-element">💎</div>
+        <div class="floating-element">🔮</div>
+        <div class="floating-element">⭐</div>
+    </div>
+
+    <!-- Authentication Screen -->
+    <div id="auth-screen" class="auth-screen">
+        <div class="auth-container">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo-content">
+                    <div class="logo-icon">🧠</div>
+                    <div>
+                        <div class="logo-title">AI Gram</div>
+                        <div class="logo-subtitle">
+                            <span>✨</span>
+                            <span class="logo-subtitle-text">Future of AI Content</span>
+                            <span>✨</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Glass Card -->
+            <div class="glass-card">
+                <div class="card-glow"></div>
+                <div class="card-content">
+                    <!-- Phone Step -->
+                    <div class="step-header">
+                        <div class="step-icon">📱</div>
+                        <div class="step-title">Enter your phone number</div>
+                        <div class="step-subtitle">We'll send you a verification code</div>
+                    </div>
+
+                    <div class="input-container">
+                        <div class="country-code">+91</div>
+                        <input type="tel" id="phone" class="phone-input" placeholder="10-digit mobile number" inputmode="numeric" />
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="login()" type="button">
+                        <span>⚡</span>
+                        <span>Send OTP</span>
+                    </button>
+                    
+                    <div class="divider">
+                        <span>or explore as</span>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="guestLogin()" type="button">
+                        <span>👤</span>
+                        <span>Guest Mode</span>
+                    </button>
+                    
+                    <p style="text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--muted-foreground); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary); opacity: 0.8; animation: pulse 2s infinite;"></span>
+                        Explore AI Gram with limited features
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary); opacity: 0.8; animation: pulse 2s infinite;"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Bottom decoration -->
+            <div style="display: flex; justify-content: center; margin-top: 2rem; gap: 8px; padding-bottom: var(--safe-area-inset-bottom);">
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: hsla(160, 84%, 39%, 0.5); animation: pulse 2s infinite; animation-delay: 0s;"></div>
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: hsla(160, 84%, 39%, 0.5); animation: pulse 2s infinite; animation-delay: 0.2s;"></div>
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: hsla(160, 84%, 39%, 0.5); animation: pulse 2s infinite; animation-delay: 0.4s;"></div>
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: hsla(160, 84%, 39%, 0.5); animation: pulse 2s infinite; animation-delay: 0.6s;"></div>
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: hsla(160, 84%, 39%, 0.5); animation: pulse 2s infinite; animation-delay: 0.8s;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Stream Screen -->
+    <div id="video-stream" class="video-stream hidden">
+        <div class="header">
+            <h1>🧠 AI Gram</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Stories Bar -->
+        <div class="stories-bar">
+            <div class="stories-container">
+                <div class="story-item">
+                    <div class="story-avatar add-story">📷</div>
+                    <div class="story-name">Your story</div>
+                </div>
+                <div class="story-item">
+                    <div class="story-avatar" style="background: linear-gradient(135deg, hsl(280, 70%, 50%), hsl(320, 70%, 50%));">S</div>
+                    <div class="story-name">Sarah</div>
+                </div>
+                <div class="story-item">
+                    <div class="story-avatar" style="background: linear-gradient(135deg, hsl(200, 70%, 50%), hsl(240, 70%, 50%));">A</div>
+                    <div class="story-name">Alex</div>
+                </div>
+                <div class="story-item">
+                    <div class="story-avatar" style="background: linear-gradient(135deg, hsl(45, 70%, 50%), hsl(60, 70%, 50%));">M</div>
+                    <div class="story-name">Maya</div>
+                </div>
+                <div class="story-item">
+                    <div class="story-avatar" style="background: linear-gradient(135deg, hsl(300, 70%, 50%), hsl(330, 70%, 50%));">J</div>
+                    <div class="story-name">John</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Video Feed -->
+        <div class="video-feed">
+            <div class="video-item">
+                <div class="video-header">
+                    <div class="video-avatar">A</div>
+                    <div class="video-info">
+                        <h3>AI Master</h3>
+                        <p>2 hours ago • 🌟 Verified Creator</p>
+                    </div>
+                </div>
+                <div class="video-placeholder">🎥</div>
+                <div class="video-actions">
+                    <button class="action-btn">❤️ 1.2K</button>
+                    <button class="action-btn">💬 89</button>
+                    <button class="action-btn">📤 Share</button>
+                    <button class="action-btn">🔖 Save</button>
+                </div>
+            </div>
+            
+            <div class="video-item">
+                <div class="video-header">
+                    <div class="video-avatar" style="background: linear-gradient(135deg, hsl(280, 70%, 50%), hsl(320, 70%, 50%));">S</div>
+                    <div class="video-info">
+                        <h3>Sarah Mitchell</h3>
+                        <p>5 hours ago • 🎨 Prompt Engineer</p>
+                    </div>
+                </div>
+                <div class="video-placeholder">🎨</div>
+                <div class="video-actions">
+                    <button class="action-btn">❤️ 2.3K</button>
+                    <button class="action-btn">💬 156</button>
+                    <button class="action-btn">📤 Share</button>
+                    <button class="action-btn">🔖 Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let isAuthenticated = false;
+        let userType = 'guest';
+
+        // Initialize app
+        function initApp() {
+            // Check for existing authentication
+            const savedAuth = localStorage.getItem('aigram_authenticated');
+            const savedUserType = localStorage.getItem('aigram_user_type');
+            
+            if (savedAuth === 'true') {
+                isAuthenticated = true;
+                userType = savedUserType || 'guest';
+                showVideoStream();
+            } else {
+                showAuthScreen();
+            }
+        }
+
+        // Authentication functions
+        function login() {
+            const phoneInput = document.getElementById('phone');
+            const phoneNumber = phoneInput.value.trim();
+            
+            if (!phoneNumber || phoneNumber.length < 10) {
+                showStatusMessage('Please enter a valid 10-digit phone number', 'error');
+                return;
+            }
+            
+            // Simulate OTP process
+            const otp = prompt('Enter OTP (use 1234 for demo):');
+            if (otp === '1234') {
+                isAuthenticated = true;
+                userType = 'authenticated';
+                localStorage.setItem('aigram_authenticated', 'true');
+                localStorage.setItem('aigram_user_type', 'authenticated');
+                
+                // Add success animation
+                document.querySelector('.btn-primary').innerHTML = '<span>✅</span><span>Success!</span>';
+                showStatusMessage('Login successful! Redirecting to video stream...', 'success');
+                
+                setTimeout(() => {
+                    showVideoStream();
+                }, 1500);
+            } else {
+                showStatusMessage('Invalid OTP. Please try again.', 'error');
+            }
+        }
+
+        function guestLogin() {
+            isAuthenticated = true;
+            userType = 'guest';
+            localStorage.setItem('aigram_authenticated', 'true');
+            localStorage.setItem('aigram_user_type', 'guest');
+            
+            // Add success animation
+            document.querySelector('.btn-secondary').innerHTML = '<span>✅</span><span>Welcome!</span>';
+            showStatusMessage('Welcome! Redirecting to video stream...', 'success');
+            
+            setTimeout(() => {
+                showVideoStream();
+            }, 1500);
+        }
+
+        function logout() {
+            isAuthenticated = false;
+            userType = 'guest';
+            localStorage.removeItem('aigram_authenticated');
+            localStorage.removeItem('aigram_user_type');
+            
+            // Add logout animation
+            const logoutBtn = document.querySelector('.logout-btn');
+            logoutBtn.innerHTML = 'Logging out...';
+            logoutBtn.style.opacity = '0.6';
+            
+            showStatusMessage('Logged out successfully', 'success');
+            
+            setTimeout(() => {
+                showAuthScreen();
+            }, 1000);
+        }
+
+        // Screen management
+        function showAuthScreen() {
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('video-stream').classList.add('hidden');
+            
+            // Reset button text
+            setTimeout(() => {
+                const primaryBtn = document.querySelector('.btn-primary');
+                const secondaryBtn = document.querySelector('.btn-secondary');
+                if (primaryBtn) primaryBtn.innerHTML = '<span>⚡</span><span>Send OTP</span>';
+                if (secondaryBtn) secondaryBtn.innerHTML = '<span>👤</span><span>Guest Mode</span>';
+            }, 100);
+        }
+
+        function showVideoStream() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('video-stream').classList.remove('hidden');
+            
+            // Reset logout button
+            setTimeout(() => {
+                const logoutBtn = document.querySelector('.logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.innerHTML = 'Logout';
+                    logoutBtn.style.opacity = '1';
+                }
+            }, 100);
+        }
+
+        // Status message
+        function showStatusMessage(message, type = 'info') {
+            // Remove existing status message
+            const existing = document.querySelector('.status-message');
+            if (existing) {
+                existing.remove();
+            }
+            
+            // Create new status message
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'status-message';
+            statusDiv.textContent = message;
+            
+            if (type === 'error') {
+                statusDiv.style.background = 'hsla(0, 70%, 50%, 0.9)';
+            } else if (type === 'success') {
+                statusDiv.style.background = 'hsla(160, 84%, 39%, 0.9)';
+            }
+            
+            document.body.appendChild(statusDiv);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // Haptic feedback simulation for web
+        function simulateHaptic(type = 'light') {
+            if (navigator.vibrate) {
+                switch(type) {
+                    case 'light':
+                        navigator.vibrate(10);
+                        break;
+                    case 'medium':
+                        navigator.vibrate(20);
+                        break;
+                    case 'heavy':
+                        navigator.vibrate([30, 10, 30]);
+                        break;
+                }
+            }
+        }
+
+        // Add haptic feedback to buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add haptic feedback to all interactive elements
+            document.querySelectorAll('.btn, .action-btn, .logout-btn').forEach(element => {
+                element.addEventListener('click', () => simulateHaptic('light'));
+            });
+            
+            // Add haptic feedback to primary actions
+            document.querySelectorAll('.btn-primary').forEach(element => {
+                element.addEventListener('click', () => simulateHaptic('medium'));
+            });
+            
+            // Initialize app
+            initApp();
+        });
+
+        // Add touch feedback for mobile
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.classList.contains('btn') || 
+                e.target.classList.contains('action-btn') || 
+                e.target.classList.contains('logout-btn') ||
+                e.target.classList.contains('video-placeholder') ||
+                e.target.classList.contains('story-item')) {
+                e.target.style.transform = 'scale(0.98)';
+            }
+        });
+
+        document.addEventListener('touchend', function(e) {
+            if (e.target.classList.contains('btn') || 
+                e.target.classList.contains('action-btn') || 
+                e.target.classList.contains('logout-btn') ||
+                e.target.classList.contains('video-placeholder') ||
+                e.target.classList.contains('story-item')) {
+                setTimeout(() => {
+                    e.target.style.transform = '';
+                }, 150);
+            }
+        });
+
+        // Keyboard navigation support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
+            }
+            
+            // Enter key on phone input
+            if (e.key === 'Enter' && e.target.id === 'phone') {
+                login();
+            }
+        });
+
+        document.addEventListener('mousedown', function() {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        // Performance optimization
+        let ticking = false;
+        function updateScrollPosition() {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        document.addEventListener('scroll', updateScrollPosition, { passive: true });
+
+        // Demo functionality for video interactions
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('action-btn')) {
+                const btnText = e.target.textContent;
+                if (btnText.includes('❤️')) {
+                    // Simulate like animation
+                    e.target.style.color = 'var(--primary)';
+                    simulateHaptic('light');
+                    setTimeout(() => {
+                        e.target.style.color = '';
+                    }, 1000);
+                } else if (btnText.includes('💬')) {
+                    showStatusMessage('Comments feature coming soon!', 'info');
+                } else if (btnText.includes('📤')) {
+                    showStatusMessage('Share feature coming soon!', 'info');
+                } else if (btnText.includes('🔖')) {
+                    showStatusMessage('Save feature coming soon!', 'info');
+                }
+            }
+            
+            if (e.target.classList.contains('video-placeholder')) {
+                showStatusMessage('Video player coming soon!', 'info');
+                simulateHaptic('medium');
+            }
+        });
+    </script>
+</body>
+</html>

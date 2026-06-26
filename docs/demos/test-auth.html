@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIgram Auth Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0F172A;
+            color: #F8FAFC;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            color: rgba(16, 185, 129, 0.3);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo-glow {
+            position: absolute;
+            top: -30px;
+            left: -30px;
+            right: -30px;
+            bottom: -30px;
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 60px;
+            opacity: 0.8;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 32px;
+            color: #10B981;
+        }
+
+        .logo-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #10B981;
+            margin-bottom: 4px;
+        }
+
+        .logo-subtitle {
+            font-size: 10px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 24px;
+            padding: 32px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            position: relative;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: rgba(16, 185, 129, 0.2);
+            border-radius: 28px;
+            opacity: 0.6;
+            z-index: -1;
+        }
+
+        .corner {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            border: 2px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .corner-tl {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 24px;
+        }
+
+        .corner-tr {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+            border-top-right-radius: 24px;
+        }
+
+        .corner-bl {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+            border-bottom-left-radius: 24px;
+        }
+
+        .corner-br {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: 24px;
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .step-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 32px;
+            color: #10B981;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #F8FAFC;
+            margin-bottom: 8px;
+        }
+
+        .step-subtitle {
+            font-size: 14px;
+            color: #94A3B8;
+            line-height: 20px;
+        }
+
+        .input-section {
+            margin-bottom: 24px;
+        }
+
+        .phone-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .country-code {
+            height: 56px;
+            padding: 0 16px;
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #94A3B8;
+            font-weight: 500;
+        }
+
+        .phone-input {
+            flex: 1;
+            height: 56px;
+            padding: 0 16px;
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-size: 18px;
+            color: #F8FAFC;
+            outline: none;
+        }
+
+        .phone-input::placeholder {
+            color: rgba(148, 163, 184, 0.6);
+        }
+
+        .phone-input:focus {
+            border-color: #10B981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        .primary-button {
+            width: 100%;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .primary-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .primary-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .divider-text {
+            font-size: 12px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 4px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .guest-button {
+            width: 100%;
+            height: 48px;
+            border-radius: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: rgba(30, 41, 59, 0.2);
+            color: #10B981;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .guest-button:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .guest-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .guest-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(16, 185, 129, 0.5);
+        }
+
+        .guest-note-text {
+            font-size: 12px;
+            color: #64748B;
+        }
+
+        .otp-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .otp-input {
+            width: 48px;
+            height: 56px;
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #F8FAFC;
+            outline: none;
+        }
+
+        .otp-input:focus {
+            border-color: #10B981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .otp-input.filled {
+            border-color: #10B981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-element" style="top: 15%; left: 10%; animation-delay: 0s;">✨</div>
+        <div class="floating-element" style="top: 20%; right: 15%; animation-delay: 0.5s;">⚡</div>
+        <div class="floating-element" style="bottom: 30%; left: 20%; animation-delay: 1s;">⭐</div>
+        <div class="floating-element" style="bottom: 25%; right: 20%; animation-delay: 1.5s;">💎</div>
+        <div class="floating-element" style="top: 45%; left: 5%; animation-delay: 2s;">✨</div>
+        <div class="floating-element" style="top: 50%; right: 10%; animation-delay: 2.5s;">⚡</div>
+    </div>
+
+    <div class="container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-container">
+                <div class="logo-glow"></div>
+                <div class="logo-icon">💡</div>
+                <div class="logo-title">AI Gram</div>
+                <div class="logo-subtitle">✨ FUTURE OF AI CONTENT ✨</div>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+
+            <!-- Phone Step -->
+            <div id="phoneStep">
+                <div class="step-header">
+                    <div class="step-icon">📞</div>
+                    <div class="step-title">Enter your phone number</div>
+                    <div class="step-subtitle">We'll send you a verification code</div>
+                </div>
+
+                <div class="input-section">
+                    <div class="phone-row">
+                        <div class="country-code">+91</div>
+                        <input 
+                            type="tel" 
+                            class="phone-input" 
+                            id="phoneInput"
+                            placeholder="10-digit mobile number"
+                            maxlength="10"
+                        >
+                    </div>
+                    
+                    <button class="primary-button" id="sendOtpBtn" disabled>
+                        ⚡ Send OTP
+                    </button>
+                </div>
+
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">OR EXPLORE AS</div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <button class="guest-button" id="guestBtn">
+                    👤 Guest Mode
+                </button>
+                
+                <div class="guest-note">
+                    <div class="guest-dot"></div>
+                    <div class="guest-note-text">Explore AI Gram with limited features</div>
+                    <div class="guest-dot"></div>
+                </div>
+            </div>
+
+            <!-- OTP Step -->
+            <div id="otpStep" class="hidden">
+                <div class="step-header">
+                    <div class="step-icon">✨</div>
+                    <div class="step-title">Enter verification code</div>
+                    <div class="step-subtitle">We sent a 6-digit code to<br><span id="phoneDisplay" style="color: #10B981; font-weight: 600;"></span></div>
+                </div>
+
+                <div class="otp-container">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+
+                <button class="primary-button" id="verifyOtpBtn" disabled>
+                    ⚡ Verify & Continue
+                </button>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="statusMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentStep = 'phone';
+        let phoneNumber = '';
+        let otpCode = '';
+
+        // DOM elements
+        const phoneInput = document.getElementById('phoneInput');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const guestBtn = document.getElementById('guestBtn');
+        const phoneStep = document.getElementById('phoneStep');
+        const otpStep = document.getElementById('otpStep');
+        const phoneDisplay = document.getElementById('phoneDisplay');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const otpInputs = document.querySelectorAll('.otp-input');
+
+        // Phone input handling
+        phoneInput.addEventListener('input', (e) => {
+            const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+            e.target.value = value;
+            phoneNumber = value;
+            
+            sendOtpBtn.disabled = value.length !== 10;
+            
+            console.log('Phone input:', value, 'Button disabled:', sendOtpBtn.disabled);
+        });
+
+        // Send OTP button
+        sendOtpBtn.addEventListener('click', () => {
+            if (phoneNumber.length === 10) {
+                showStatus('OTP sent to +91 ' + phoneNumber + '!', 'success');
+                phoneDisplay.textContent = '+91 ' + phoneNumber;
+                
+                // Switch to OTP step
+                phoneStep.classList.add('hidden');
+                otpStep.classList.remove('hidden');
+                currentStep = 'otp';
+                
+                // Focus first OTP input
+                otpInputs[0].focus();
+                
+                console.log('Switched to OTP step');
+            }
+        });
+
+        // Guest button
+        guestBtn.addEventListener('click', () => {
+            showStatus('Welcome to AI Gram as Guest!', 'success');
+            console.log('Guest login clicked');
+        });
+
+        // OTP input handling
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                e.target.value = value;
+                
+                if (value && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+                
+                // Update OTP code
+                otpCode = Array.from(otpInputs).map(inp => inp.value).join('');
+                verifyOtpBtn.disabled = otpCode.length !== 6;
+                
+                // Add filled class
+                if (value) {
+                    e.target.classList.add('filled');
+                } else {
+                    e.target.classList.remove('filled');
+                }
+                
+                console.log('OTP input:', otpCode, 'Button disabled:', verifyOtpBtn.disabled);
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Verify OTP button
+        verifyOtpBtn.addEventListener('click', () => {
+            if (otpCode.length === 6) {
+                showStatus('OTP verified successfully! Welcome to AI Gram!', 'success');
+                console.log('OTP verified:', otpCode);
+            }
+        });
+
+        // Status message helper
+        function showStatus(message, type) {
+            statusMessage.innerHTML = message;
+            statusMessage.className = `status ${type}`;
+            
+            setTimeout(() => {
+                statusMessage.innerHTML = '';
+                statusMessage.className = '';
+            }, 3000);
+        }
+
+        // Test interactions on load
+        console.log('Auth test page loaded');
+        console.log('Phone input element:', phoneInput);
+        console.log('Send OTP button:', sendOtpBtn);
+        console.log('Guest button:', guestBtn);
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Azure Subscription and Service Principal Credentials
+subscription_id = "YOUR_SUBSCRIPTION_ID"
+client_id       = "YOUR_CLIENT_ID"
+client_secret   = "YOUR_CLIENT_SECRET"
+tenant_id       = "YOUR_TENANT_ID"
+
+# Resource Group Configuration
+resource_group_name = "aigram-video-upload-rg"
+location            = "Central India"
+
+# Storage Account Configuration
+storage_account_name    = "aigramvideostorage"
+storage_account_tier    = "Standard"
+storage_replication_type = "LRS"
+
+# Blob Container Configuration
+blob_container_name = "videos"
+
+# Cosmos DB Configuration
+cosmosdb_account_name    = "aigram-videodb"
+cosmosdb_database_name   = "video-db"
+cosmosdb_container_name  = "videos"
+cosmosdb_partition_key   = "/userId"
+cosmosdb_throughput      = 400
+
+# Environment and Project Tags
+environment = "dev"
+project_name = "aigram"
+
+common_tags = {
+  Project     = "Aigram"
+  Environment = "dev"
+  ManagedBy   = "Terraform"
+  Team        = "Platform"
+  CostCenter  = "Engineering"
+}

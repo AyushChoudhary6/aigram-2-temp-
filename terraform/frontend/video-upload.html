@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aigram - Video Upload</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .file-input-label:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .file-input-label.drag-over {
+            border-color: #764ba2;
+            background: #e8ebff;
+            transform: scale(1.02);
+        }
+
+        .file-input-content {
+            text-align: center;
+        }
+
+        .file-input-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .file-input-text {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .file-input-hint {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .selected-file {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f0f2ff;
+            border-radius: 8px;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .progress-wrapper {
+            display: none;
+            margin-bottom: 24px;
+        }
+
+        .progress-wrapper.active {
+            display: block;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .metadata-section {
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .metadata-section h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .tag-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tag-input input {
+            flex: 1;
+        }
+
+        .tag-input button {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+        }
+
+        .tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #e8ebff;
+            border-radius: 20px;
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tag button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+        }
+
+        .status-dot.loading {
+            background: #667eea;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-dot.success {
+            background: #28a745;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
+        .code-block code {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>🎬 Aigram Video Upload</h1>
+                <p>Upload, manage, and share your videos seamlessly</p>
+            </div>
+
+            <div class="content">
+                <!-- Alerts -->
+                <div id="alertSuccess" class="alert alert-success"></div>
+                <div id="alertError" class="alert alert-error"></div>
+                <div id="alertInfo" class="alert alert-info"></div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('upload')">📤 Upload</button>
+                    <button class="tab" onclick="switchTab('api')">🔧 API</button>
+                    <button class="tab" onclick="switchTab('config')">⚙️ Config</button>
+                </div>
+
+                <!-- Upload Tab -->
+                <div id="upload" class="tab-content active">
+                    <form id="uploadForm">
+                        <!-- Video File Input -->
+                        <div class="file-input-wrapper">
+                            <label for="videoFile" class="file-input-label" id="fileInputLabel">
+                                <div class="file-input-content">
+                                    <div class="file-input-icon">📹</div>
+                                    <div class="file-input-text">Click to upload or drag and drop</div>
+                                    <div class="file-input-hint">MP4, AVI, MOV, MKV, WebM (max 1GB)</div>
+                                </div>
+                            </label>
+                            <input 
+                                type="file" 
+                                id="videoFile" 
+                                class="file-input" 
+                                accept="video/*"
+                                required
+                            >
+                            <div id="selectedFile" class="selected-file" style="display: none;"></div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div id="progressWrapper" class="progress-wrapper">
+                            <div class="progress-label">
+                                <span>Uploading...</span>
+                                <span id="progressPercent">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="progressFill" class="progress-fill"></div>
+                            </div>
+                        </div>
+
+                        <!-- Metadata Section -->
+                        <div class="metadata-section">
+                            <h3>Video Information</h3>
+
+                            <div class="form-group">
+                                <label for="videoTitle">Video Title *</label>
+                                <input 
+                                    type="text" 
+                                    id="videoTitle" 
+                                    placeholder="Enter video title"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="videoDescription">Description</label>
+                                <textarea 
+                                    id="videoDescription" 
+                                    placeholder="Enter video description..."
+                                ></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="userId">User ID *</label>
+                                <input 
+                                    type="text" 
+                                    id="userId" 
+                                    placeholder="e.g., user123"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="videoDuration">Duration (seconds)</label>
+                                <input 
+                                    type="number" 
+                                    id="videoDuration" 
+                                    placeholder="0"
+                                    min="0"
+                                >
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="form-group">
+                                <label>Tags</label>
+                                <div class="tag-input">
+                                    <input 
+                                        type="text" 
+                                        id="tagInput" 
+                                        placeholder="Add a tag and press the button"
+                                    >
+                                    <button 
+                                        type="button" 
+                                        class="btn-primary" 
+                                        onclick="addTag()"
+                                        style="flex: 0; padding: 8px 16px;"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                                <div class="tags-list" id="tagsList"></div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="button-group">
+                            <button type="submit" class="btn-primary" id="uploadBtn">Upload Video</button>
+                            <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- API Tab -->
+                <div id="api" class="tab-content">
+                    <h3 style="margin-bottom: 16px;">API Endpoints</h3>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="color: #333; margin-bottom: 8px;">1. Get SAS Token</h4>
+                        <p style="color: #666; font-size: 13px; margin-bottom: 8px;">Generate a time-limited SAS token for secure upload to Azure Blob Storage.</p>
+                        <div class="code-block"><code>POST /api/upload/sas-token</code></div>
+                        <div class="code-block"><code>{
+  "fileName": "video.mp4",
+  "userId": "user123"
+}</code></div>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="color: #333; margin-bottom: 8px;">2. Upload Video to Blob Storage</h4>
+                        <p style="color: #666; font-size: 13px; margin-bottom: 8px;">Upload the video file directly to Azure Blob Storage using the SAS URL.</p>
+                        <div class="code-block"><code>PUT {sasUrl}
+
+Headers:
+  x-ms-blob-type: BlockBlob
+  Content-Type: video/mp4</code></div>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="color: #333; margin-bottom: 8px;">3. Store Metadata</h4>
+                        <p style="color: #666; font-size: 13px; margin-bottom: 8px;">Store video metadata in Cosmos DB for quick retrieval.</p>
+                        <div class="code-block"><code>POST /api/upload/video
+
+{
+  "blobName": "user123/...",
+  "userId": "user123",
+  "title": "My Video",
+  "description": "...",
+  "duration": 120,
+  "tags": []
+}</code></div>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="color: #333; margin-bottom: 8px;">4. Get Metadata</h4>
+                        <div class="code-block"><code>GET /api/upload/metadata/:videoId?userId=user123</code></div>
+                    </div>
+
+                    <div>
+                        <h4 style="color: #333; margin-bottom: 8px;">5. List User Videos</h4>
+                        <div class="code-block"><code>GET /api/upload/user/:userId/videos</code></div>
+                    </div>
+                </div>
+
+                <!-- Config Tab -->
+                <div id="config" class="tab-content">
+                    <h3 style="margin-bottom: 16px;">Backend Configuration</h3>
+                    
+                    <div class="form-group">
+                        <label for="apiUrl">Backend API URL</label>
+                        <input 
+                            type="text" 
+                            id="apiUrl" 
+                            placeholder="http://localhost:3000"
+                            value="http://localhost:3000"
+                        >
+                        <small style="color: #999;">Update this to point to your backend server</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maxFileSize">Max File Size (MB)</label>
+                        <input 
+                            type="number" 
+                            id="maxFileSize" 
+                            value="1024"
+                            min="1"
+                        >
+                    </div>
+
+                    <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin-top: 16px;">
+                        <h4 style="color: #333; margin-bottom: 12px;">Environment Variables</h4>
+                        <div class="code-block"><code>AZURE_STORAGE_ACCOUNT_NAME=...
+AZURE_STORAGE_ACCOUNT_KEY=...
+AZURE_BLOB_CONTAINER_NAME=videos
+AZURE_COSMOS_ENDPOINT=...
+AZURE_COSMOS_KEY=...
+AZURE_COSMOS_DATABASE=video-db
+AZURE_COSMOS_CONTAINER=videos</code></div>
+                    </div>
+
+                    <button 
+                        type="button" 
+                        class="btn-primary" 
+                        style="margin-top: 16px; width: 100%;"
+                        onclick="testConnection()"
+                    >
+                        Test Connection
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const state = {
+            selectedFile: null,
+            tags: [],
+            isUploading: false
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupFileInput();
+            setupFormSubmit();
+        });
+
+        // Setup file input
+        function setupFileInput() {
+            const fileInput = document.getElementById('videoFile');
+            const fileInputLabel = document.getElementById('fileInputLabel');
+            const selectedFileDiv = document.getElementById('selectedFile');
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    selectFile(file);
+                }
+            });
+
+            // Drag and drop
+            fileInputLabel.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileInputLabel.classList.add('drag-over');
+            });
+
+            fileInputLabel.addEventListener('dragleave', () => {
+                fileInputLabel.classList.remove('drag-over');
+            });
+
+            fileInputLabel.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileInputLabel.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    selectFile(files[0]);
+                }
+            });
+        }
+
+        function selectFile(file) {
+            state.selectedFile = file;
+            const selectedFileDiv = document.getElementById('selectedFile');
+            const fileInputLabel = document.getElementById('fileInputLabel');
+            
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+            selectedFileDiv.textContent = `✓ ${file.name} (${sizeInMB} MB)`;
+            selectedFileDiv.style.display = 'block';
+            fileInputLabel.style.display = 'none';
+            
+            showAlert('info', `File selected: ${file.name}`);
+        }
+
+        // Setup form
+        function setupFormSubmit() {
+            document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await uploadVideo();
+            });
+        }
+
+        // Upload video
+        async function uploadVideo() {
+            if (!state.selectedFile) {
+                showAlert('error', 'Please select a video file');
+                return;
+            }
+
+            const videoTitle = document.getElementById('videoTitle').value;
+            const userId = document.getElementById('userId').value;
+            const videoDuration = document.getElementById('videoDuration').value || 0;
+            const videoDescription = document.getElementById('videoDescription').value;
+
+            if (!videoTitle || !userId) {
+                showAlert('error', 'Please fill in required fields');
+                return;
+            }
+
+            state.isUploading = true;
+            document.getElementById('uploadBtn').disabled = true;
+            document.getElementById('progressWrapper').classList.add('active');
+
+            try {
+                const apiUrl = document.getElementById('apiUrl').value;
+
+                // Step 1: Get SAS Token
+                showAlert('info', 'Getting secure SAS token...');
+                const sasResponse = await fetch(`${apiUrl}/api/upload/sas-token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileName: state.selectedFile.name,
+                        userId: userId
+                    })
+                });
+
+                if (!sasResponse.ok) {
+                    throw new Error('Failed to get SAS token');
+                }
+
+                const sasData = await sasResponse.json();
+                const sasUrl = sasData.sasUrl;
+                const blobName = sasData.blobName;
+
+                // Step 2: Upload to Blob Storage
+                showAlert('info', 'Uploading video to Azure Blob Storage...');
+                
+                const uploadResponse = await uploadToBlob(sasUrl, state.selectedFile);
+                
+                if (!uploadResponse.ok) {
+                    throw new Error('Failed to upload video to blob storage');
+                }
+
+                // Step 3: Store Metadata
+                showAlert('info', 'Storing video metadata...');
+                const metadataResponse = await fetch(`${apiUrl}/api/upload/video`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        blobName: blobName,
+                        userId: userId,
+                        title: videoTitle,
+                        description: videoDescription,
+                        duration: parseInt(videoDuration),
+                        tags: state.tags
+                    })
+                });
+
+                if (!metadataResponse.ok) {
+                    throw new Error('Failed to store metadata');
+                }
+
+                const metadataData = await metadataResponse.json();
+
+                // Success
+                showAlert('success', `Video uploaded successfully! Video ID: ${metadataData.video.videoId}`);
+                updateProgressBar(100);
+                resetForm();
+
+            } catch (error) {
+                showAlert('error', error.message || 'Upload failed');
+                console.error('Upload error:', error);
+            } finally {
+                state.isUploading = false;
+                document.getElementById('uploadBtn').disabled = false;
+                setTimeout(() => {
+                    document.getElementById('progressWrapper').classList.remove('active');
+                    updateProgressBar(0);
+                }, 2000);
+            }
+        }
+
+        // Upload to blob storage
+        async function uploadToBlob(sasUrl, file) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        updateProgressBar(percentComplete);
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 201 || xhr.status === 200) {
+                        resolve({ ok: true });
+                    } else {
+                        reject(new Error(`Upload failed with status ${xhr.status}`));
+                    }
+                });
+
+                xhr.addEventListener('error', () => {
+                    reject(new Error('Network error during upload'));
+                });
+
+                xhr.open('PUT', sasUrl);
+                xhr.setRequestHeader('x-ms-blob-type', 'BlockBlob');
+                xhr.setRequestHeader('Content-Type', file.type || 'video/mp4');
+                xhr.send(file);
+            });
+        }
+
+        // Update progress bar
+        function updateProgressBar(percent) {
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = Math.round(percent) + '%';
+        }
+
+        // Add tag
+        function addTag() {
+            const tagInput = document.getElementById('tagInput');
+            const tag = tagInput.value.trim();
+
+            if (tag) {
+                state.tags.push(tag);
+                tagInput.value = '';
+                renderTags();
+            }
+        }
+
+        // Remove tag
+        function removeTag(index) {
+            state.tags.splice(index, 1);
+            renderTags();
+        }
+
+        // Render tags
+        function renderTags() {
+            const tagsList = document.getElementById('tagsList');
+            tagsList.innerHTML = state.tags.map((tag, index) => `
+                <div class="tag">
+                    ${tag}
+                    <button type="button" onclick="removeTag(${index})">×</button>
+                </div>
+            `).join('');
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('uploadForm').reset();
+            document.getElementById('selectedFile').style.display = 'none';
+            document.getElementById('fileInputLabel').style.display = 'flex';
+            state.selectedFile = null;
+            state.tags = [];
+            renderTags();
+            updateProgressBar(0);
+        }
+
+        // Show alert
+        function showAlert(type, message) {
+            const alertId = `alert${type.charAt(0).toUpperCase() + type.slice(1)}`;
+            const alert = document.getElementById(alertId);
+            alert.textContent = message;
+            alert.classList.add('active');
+
+            setTimeout(() => {
+                alert.classList.remove('active');
+            }, 5000);
+        }
+
+        // Test connection
+        async function testConnection() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            showAlert('info', 'Testing connection...');
+
+            try {
+                const response = await fetch(`${apiUrl}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    showAlert('success', `✓ Connected to ${data.service} v${data.version}`);
+                } else {
+                    showAlert('error', 'Backend responded with error');
+                }
+            } catch (error) {
+                showAlert('error', `Failed to connect to ${apiUrl}`);
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Handle Enter key for tag input
+        document.addEventListener('DOMContentLoaded', () => {
+            const tagInput = document.getElementById('tagInput');
+            if (tagInput) {
+                tagInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addTag();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
