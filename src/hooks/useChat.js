@@ -136,7 +136,8 @@ export default function useChat() {
       }
       saveHistory([...historyToSent, { role: 'assistant', content: responseText, timestamp: Date.now(), status: 'sent' }]);
     } catch (error) {
-      let friendlyError = "Something went wrong. Please try again.";
+      console.error('[useChat] Error sending message:', error);
+      let friendlyError = error.message || "Something went wrong. Please try again.";
       if (error.message === "RATE_LIMIT") friendlyError = "Too many requests. Please wait a moment and try again.";
       else if (error.message === "INVALID_TOKEN") friendlyError = "API token is invalid. Check your configuration.";
       else if (error.message === "TIMEOUT") friendlyError = "Request timed out. Check your internet connection.";
