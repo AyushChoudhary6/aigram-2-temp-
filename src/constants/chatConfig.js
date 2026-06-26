@@ -2,7 +2,7 @@ const chatConfig = {
   MODEL: "gemini-2.0-flash",
   
   GROQ_API_KEY: process.env.EXPO_PUBLIC_GROQ_API_KEY || "",
-  GEMINI_API_KEY: process.env.EXPO_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "",
+  GEMINI_API_KEY: process.env.EXPO_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "AQ.Ab8RN6LYacGnfzIzOxBxbNX1_We3Rgz93dGk2xAK5t_Q7zH2SA",
   
   GROQ_ENDPOINT: "https://api.groq.com/openai/v1/chat/completions",
   
